@@ -1,0 +1,64 @@
+.x.axis path {
+    display: none;
+}
+
+.bar {
+    fill: #4683B4;
+}
+
+.bar:hover {
+    fill: #2A70B4;
+}
+
+.axis path,
+.axis line {
+    fill: none;
+    stroke: #000;
+    shape-rendering: crispEdges;
+}
+
+.tick text {
+    font-family: 'Times New Roman', sans-serif;
+    font-weight: normal;
+}
+
+div.tooltip {
+    position: absolute;
+    text-align: center;
+    width: 40px;
+    height: 20px;
+    padding: 2px;
+    font: 12px sans-serif;
+    background: darkgray;
+    border: 0px;
+    border-radius: 2px;
+    pointer-events: none;
+    opacity: .9;
+}
+
+.links line {
+    stroke: #000;
+    strokye-opacit: 1.0;
+}
+
+.nodes circle {
+    stroke: #000;
+    stroke-width: 1.5px;
+}
+
+.node text{
+    font-family: 'Tw Cen MT Condensed', sans-serif;
+}
+
+#sidebar {
+    position: fixed;
+    width: 250px;
+    height: 800px;
+}
+
+#content {
+    margin-left: 270px;
+    padding: 20px;
+    /* Sidebar Width + 20px */
+
+}

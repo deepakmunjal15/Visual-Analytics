@@ -1,0 +1,26 @@
+City name,"Av. Daily 
+Max. Temp. 
+(°C)","Av. Daily
+Min.
+Temp. (°C)","Av. hours 
+Sun 
+(per day)","Av. Days 
+with 
+Rain","Av. Days 
+with 
+Snowfall","Av. Depth 
+Snow on 
+Ground (cm)","Av. Wind
+Speed
+(km per hr)"
+Halifax,13,6,4,13,0,0,14
+Vancouver,14,7,4,14,0,0,11
+Calgary,12,-1,5.8,4,4,0,15
+Edmonton,11,-2,5.2,5,2,1,13
+Winnipeg,11,0,4.7,8,2,0,18
+Penticton,14,3,4.6,8,0,0,11
+Windsor,16,6,5.5,11,0,0,15
+Toronto,14,7,4.8,11,0,0,13
+Ottawa,12,4,4.4,14,1,0,12
+Montreal,13,3,4.5,13,1,0,14
+Fredericton,13,3,4.6,13,0,0,11

@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+
+.bar {
+  fill: steelblue;
+}
+
+.axis--x path {
+  display: none;
+}
+
+</style>
+<body>
+
+
+<form id="form" action="http://localhost:5000/" method="POST" name="formdata">
+
+<strong>**</strong>Test and train split percentage: <input id="splitPercent" type="text" name="splitPercent" size="25"><br>
+<br>
+Select preprocessing option(s):<br>
+<input id="lower" type="checkbox" name="lower" value="True">Lowercase all words<br>
+<input id="punc" type="checkbox" name="punc" value="True">Remove punctuations<br>
+<input id="number" type="checkbox" name="number" value="True">Remove numbers<br>
+<br>
+<strong>**</strong>Document Term Matrix style: 
+<input id="style1" type="radio" name="style" value="tf_idf"> TF_IDF
+<input id="style2" type="radio" name="style" value="count"> Frequency<br>
+
+<h3>Classifier Options:</h3>
+
+
+<ul>
+<li><b>SVM</b></li>
+Penalty Parameter C: <input id="penalty" type="text" name="penalty" size="25"><br>
+Kernel:
+<input id="kernel1" type="radio" name="kernel" value="linear"> linear
+<input id="kernel2" type="radio" name="kernel" value="poly"> poly
+<input id="kernel3" type="radio" name="kernel" value="rbf"> rbf
+<input id="kernel4" type="radio" name="kernel" value="sigmoid"> sigmoid<br>
+<br>
+
+<li><b>Naive Bayes</b></li>
+Smoothing Parameter Alpha: <input id="smoothing" type="text" name="smoothing" size="25"><br>
+Naive Bayes Algo Type:
+<input id="nbtype1" type="radio" name="nbtype" value="GaussianNB"> GaussianNB
+<input id="nbtype2" type="radio" name="nbtype" value="MultinomialNB"> MultinomialNB
+<input id="nbtype3" type="radio" name="nbtype" value="BernoulliNB"> BernoulliNB<br>
+<br>
+
+<li><b>MLP</b></li>
+Number of Hidden Neurons: <input id="neurons" type="text" name="neurons" size="25"><br>
+Activation Function:
+<input id="activation1" type="radio" name="activation" value="identity"> identity
+<input id="activation2" type="radio" name="activation" value="logistic"> logistic
+<input id="activation3" type="radio" name="activation" value="tanh"> tanh
+<input id="activation4" type="radio" name="activation" value="relu"> relu<br>
+<br>
+
+<li><b>Random Forest</b></li>
+Number of Trees in the Forest: <input id="trees" type="text" name="trees" size="25"><br>
+Splitting Criterion:
+<input id="criterion1" type="radio" name="criterion" value="gini"> gini
+<input id="criterion2" type="radio" name="criterion" value="entropy"> entropy<br>
+<br>
+
+<li><b>Decision Tree</b></li>
+Splitter:
+<input id="splitter1" type="radio" name="splitter" value="best"> best
+<input id="splitter2" type="radio" name="splitter" value="random"> random<br>
+Splitting Criterion:
+<input id="dtcriterion1" type="radio" name="dtcriterion" value="gini"> gini
+<input id="dtcriterion2" type="radio" name="dtcriterion" value="entropy"> entropy<br>
+</ul>
+
+<input type="submit" value="Evaluate" style="height:30px; width:100px"><br><br>
+<strong>**Required Fields</strong>
+</form>
+<br><br><br><br>
+
+<script src="https://d3js.org/d3.v4.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script type="text/javascript">
+
+var margin = {top: 20, right: 20, bottom: 30, left: 40},
+    width = 600 - margin.left - margin.right,
+    height = 600 - margin.top - margin.bottom;
+
+var a={{value|tojson}};
+var json;
+
+var a1={{value1|tojson}};
+var json1;
+
+
+for (i = 0; i < a.length; i++) { 
+
+    json=JSON.parse(a[i]);
+    json1=JSON.parse(a1[i]);
+    makeGraph(json, json1);
+}
+
+function makeGraph(json, json1){
+
+
+	var json = d3.entries(json)
+	var json1 = d3.entries(json1)
+
+	var svg = d3.select("body").append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom);
+
+	var x = d3.scaleBand().rangeRound([0, width]).padding(0.1),
+		y = d3.scaleLinear().rangeRound([height, 0]);
+
+	var g = svg.append("g")
+		.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+
+	  x.domain(json.map(function(d) { return d.key; }));
+	  y.domain([0, d3.max(json, function(d) { return d.value; })]);
+
+	  g.append("g")
+		  .attr("class", "axis axis--x")
+		  .attr("transform", "translate(0," + height + ")")
+		  .call(d3.axisBottom(x));
+
+	  g.append("g")
+		  .attr("class", "axis axis--y")
+		  .call(d3.axisLeft(y).ticks(10, "%"))
+		.append("text")
+		  .attr("transform", "rotate(-90)")
+		  .attr("y", 6)
+		  .attr("dy", "0.71em")
+		  .attr("text-anchor", "end")
+		  .text("Frequency");
+		  
+	  g.selectAll(".bar")
+		.data(json)
+		.enter().append("rect")
+		  .attr("class", "bar")
+		  .attr("x", function(d) { return x(d.key); })
+		  .attr("y", function(d) { return y(d.value); })
+		  .attr("width", x.bandwidth())
+		  .attr("height", function(d) { return height - y(d.value); });
+
+	var legend = svg.append("g")
+    		.attr("class", "legend")
+    		//.attr("x", w - 65)
+    		//.attr("y", 50)
+    		.attr("height", 100)
+    		.attr("width", 100)
+    		.attr('transform', 'translate(52,53)')
+		.selectAll('g')
+      	        .data(json1.map(function(d) { return d.key+": "+d.value; }))
+	        .enter()
+	        .append("g");
+
+
+	legend.append("text")
+	    .attr("y", -40)
+	    .attr("x", function(d, i) {
+	        return i * 100 + 15;
+	    })
+	    .text(function(d) {
+	        return d;
+	    });
+	};
+
+</script>
+</body>
+</html>

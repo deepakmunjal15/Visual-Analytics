@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+<head>
+	
+<script src="https://d3js.org/d3.v4.min.js"></script>
+
+</head>
+
+<meta charset="utf-8">
+<svg width="960" height="500"></svg>
+<style>
+
+.grid line {
+  stroke: #ddd;
+  opacity: 0.5;
+}
+
+.grid path {
+      stroke-width: 0;
+}
+
+.axis path, .axis line {
+  fill: none;
+  stroke: none;
+}
+
+</style>
+
+<body>	
+<script>
+		
+var width=500;
+	height=500;
+	padding=50;
+
+var data=[] 
+d3.csv("data.csv",function(csv){ 
+            csv.map(function(d,i){ 
+				data.push({ age : d.age, male : +d.male, space : 750, female : +d.female});
+            }) 
+
+var series = d3.stack()
+    .keys(["male", "space", "female"])
+    .offset(d3.stackOffsetNone)
+    (data);
+
+var svg = d3.select("svg"),
+    margin = {top: 20, right: 30, bottom: 34, left: 110},
+    width = +svg.attr("width"),
+    height = +svg.attr("height");
+
+var y = d3.scaleBand()
+    .domain(data.map(function(d) { return d.age; }))
+	.rangeRound([margin.top, height - margin.bottom])
+    .padding(0.15);
+
+var x = d3.scaleLinear()
+	.domain([0, 120000])
+    .rangeRound([margin.left, width - margin.right -400]);
+	
+var gridline2 = d3.scaleBand()
+	.domain([120000])
+    .rangeRound([width - margin.right -400, width - margin.right -400]);
+
+var gridline1 = d3.scaleBand()
+	.domain([60000])
+    .rangeRound([margin.left, width - margin.right -400]);
+
+var colors = d3.scaleOrdinal()
+          .range(["#0c8ec1","#ffffff", "#7ad3f7"])		
+		  
+var q = svg.append("g")
+  .selectAll("g")
+  .data(series)
+  .enter().append("g")
+  .attr("fill", function(d) { return colors(d.key); })
+  
+q.selectAll("rect")
+  .data(function(d) { return d; })
+  .enter().append("rect")
+  .attr("width", function(d) {return x(d[1]) - x(d[0]);})
+  .attr("y", function(d) { return y(d.data.age); })
+  .attr("x", function(d) { return x(d[0]); })
+  .attr("height",  y.bandwidth)
+
+var gridlines2 = d3.axisBottom()
+    .tickFormat("")
+    .tickSize(height-margin.bottom-margin.top)
+	.scale(gridline2);
+
+svg.append("g")
+     .attr("class", "grid")
+	 .attr("transform", "translate(0," + margin.top + ")")
+     .call(gridlines2);
+
+var gridlines1 = d3.axisBottom()
+                    .tickFormat("")
+                    .tickSize(height-margin.bottom-margin.top)
+					.scale(gridline1);
+
+svg.append("g")
+     .attr("class", "grid")
+	 .attr("transform", "translate(0," + margin.top + ")")
+     .call(gridlines1);
+
+svg.append("g")
+	.style("font", "25px sans-serif")
+	.attr("class", "axis")
+    .attr("transform", "translate(0," + (height - margin.bottom) + ")")
+    .call(d3.axisBottom(x)
+	.tickFormat((d) => {
+	if(d===60000 || d===120000) return d/1000 + "K";
+	else if(d===0) return d; 
+	else return "";
+	return d;})
+    .tickSize(0)
+	.tickPadding(15));
+
+svg.append("g")
+	.style("font", "25px sans-serif")
+    .attr("transform", "translate(" + margin.left + ",0)")
+    .call(d3.axisLeft(y)
+	.tickSize(0)
+	.tickPadding(15));
+}); 
+</script>
+</body>
+</html>

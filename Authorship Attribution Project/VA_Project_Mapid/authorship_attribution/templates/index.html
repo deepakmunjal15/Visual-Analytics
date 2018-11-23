@@ -1,0 +1,344 @@
+{% extends "base.html" %}
+{% block content %}
+    <div class="wrapper">
+        <!-- Sidebar Holder -->
+        <nav id="sidebar">
+            <div class="sidebar-header">
+                <h3>VA Project</h3>
+            </div>
+
+            <ul class="list-unstyled components sidebar-comp">
+                <p>Authorship Attribution</p>
+                <li>
+                    <a href="#barchart-item">Bar Chart</a>
+                </li>
+                <li>
+                    <a href="#force-layout-item">Force Layout</a>
+                </li>
+                <li>
+                    <a href="#live-item">Live Author Detection</a>
+                </li>
+            </ul>
+        </nav>
+
+        <!-- Page Content Holder -->
+        <div id="content">
+
+            <h2>Authorship Attribution</h2>
+            <p>Authorship Attribution is the task of identifying the most likely author.
+                Every Author has a unique writing style. Authorship attribution includes finding the most likely
+                author of the text. Since every author’s writing style is unique,
+                it is possible to characterize an author’s writing by a unique set of features that define
+                the writing style of the author. We used CNG distance to solve this author attribution problem
+                and represented our data & results using visual elements with Javascript D3 library.</p>
+            <div class="line"></div>
+
+            <!-- Group bar chart -->
+            <div id="barchart-item">
+                <h2>Bar Chart</h2>
+                <p>Bar Chart – Predicted author of a document can be easily visualized using bar chart by looking at the
+                    minimum value of the CNG distance between that document and all other authors
+                    Labeled Force Layout – It provides a visualization platform for the relationship between documents
+                    and authors. The more is the similarity between a document and an author, the bolder is the line
+                    between them
+                    {% csrf_token %}
+                <div>
+                    <button type="button" class="btn btn-primary" id="bar-button">Make Bar</button>
+                </div>
+                <div id="loader-barchart"></div>
+                <div class="radio-ngrams center-class" id="bar-radio-ngrams"></div>
+                <div id="barcharts"></div>
+                <div class="checkbox center-class" id="bar-checkbox">
+                </div>
+
+                </p>
+            </div>
+
+            <div class="line"></div>
+
+            <!-- Force Layout -->
+            <div id="force-layout-item">
+                <h2>Force Layout</h2>
+                <p> It provides a visualization platform for the relationship between documents and authors. The more is
+                    the similarity between a document and an author, the bolder is the line between them</p>
+                <p>
+                <p>Note: Please drag the slider to next value instead of clicking on the values.</p>
+                <div>
+                    {% csrf_token %}
+                    <button type="button" class="btn btn-primary" id="force-layout-button">Make ForceLayout</button>
+                </div>
+                <p id="loader-force-layout"></p>
+                <p>
+                    <div id="force-layout-slider-div" class="center-class">
+                <p> Normalization Threshold </p>
+                <input id="force-layout-slider" type="text"
+                       data-provide="slider"
+                       data-slider-ticks="[1, 2, 3, 4]"
+                       data-slider-ticks-labels='[".6", ".7", ".8", ".9"]'
+                       data-slider-min="1"
+                       data-slider-max="4"
+                       data-slider-step="1"
+                       data-slider-value="1"
+                       data-slider-tooltip="hide"/>
+                </p>
+                <p id="force-layout" class="margin-sixty"></p>
+                </p>
+            </div>
+
+
+            <div class="line"></div>
+
+
+            <!-- LIVE TEXT -->
+            <div id="live-item">
+                <h2>Live Text</h2>
+                <p>
+                <div class="top-margin">
+                    {% csrf_token %}
+                    <textarea name='Status' id="message" class="form-control" rows="6"> Write in this area to visualize which author you resemble the most. By default, it will show bar graph. Click the button below to visualize other elements.</textarea>
+                    <button id="button-div-barchart" type="button" class="btn btn-primary up-margin active"
+                            onclick="showHideViews('div-barchart')">
+                        Bar
+                    </button>
+                    <button id="button-div-force" type="button" class="btn btn-primary up-margin active"
+                            onclick="showHideViews('div-force')">Force Layout
+                    </button>
+                    <button id="button-div-clusters" type="button" class="btn btn-primary up-margin active"
+                            onclick="showHideViews('div-clusters')">Clusters
+                    </button>
+                    <button id="button-div-concept-map" type="button" class="btn btn-primary up-margin active"
+                            onclick="showHideViews('div-concept-map')">Concept
+                        Map
+                    </button>
+                </div>
+
+                <p id="loader"></p>
+
+            </div>
+
+            <!-- Live text bar chart -->
+            <div id="div-barchart" class="row">
+                <h3>Bar Chart</h3>
+                <p>This is to visualize which author your writing style resembles the most. The value on the y axis
+                    is not a probability but a normalized score where 1 denotes the most matched author and 0 denotes
+                    least</p>
+                <p id="barchart"></p>
+            </div>
+
+            <!-- Live text force layout -->
+            <div id="div-force" class="row">
+                <h3>Force Layout</h3>
+                <p>Force layout used to identify links between the person in this case denoted as 'Test Author'
+                    and other others in the training set. The thickness of the line shows more similarity. There is a
+                    slider at the top to toggle between different authors.</p>
+                <p>Note: Please drag the slider to next value instead of clicking on the values.</p>
+                <p id="force-live-slider-div">
+                    <div class="center-class">
+                <p> Normalization Threshold </p>
+                <input id="force-live-slider" type="text"
+                       data-provide="slider"
+                       data-slider-ticks="[1, 2, 3, 4]"
+                       data-slider-ticks-labels='[".6", ".7", ".8", ".9"]'
+                       data-slider-min="1"
+                       data-slider-max="4"
+                       data-slider-step="1"
+                       data-slider-value="1"
+                       data-slider-tooltip="hide"/>
+            </div>
+            <div id="force-live" class="up-big-margin"></div>
+            </p>
+        </div>
+
+        <!-- Live text clusters -->
+        <div id="div-clusters" class="row">
+            <h3>Clustering</h3>
+            <p>Here we used Agglomerative Clustering based on euclidean distance to visualize author groups based
+            on their score.</p>
+            <p id="force-live-checkbox" class="center-class">
+                <label class="radio-inline"><input type="radio" name="cluster-radio" value="3" checked>
+                    3</label>
+                <label class="radio-inline"><input type="radio" name="cluster-radio" value="4"> 4</label>
+                <label class="radio-inline"><input type="radio" name="cluster-radio" value="5"> 5</label>
+                <label class="radio-inline"><input type="radio" name="cluster-radio" value="6"> 6</label>
+                <label class="radio-inline"><input type="radio" name="cluster-radio" value="7"> 7</label>
+                <label class="radio-inline"><input type="radio" name="cluster-radio" value="8"> 8</label>
+                <label class="radio-inline"><input type="radio" name="cluster-radio" value="9"> 9</label>
+            <p class="margin-sixty right_shift-class" id="force-clusters"></p>
+            </p>
+        </div>
+
+        <!-- Live text concept map -->
+        <div id="div-concept-map" class="row">
+
+            <h3>Concept Map</h3>
+            <p>It helps in visualization of top n-grams of a particular author and vice-versa i.e. all authors
+                corresponding to a particular list of n-grams</p>
+            <p id="concept-map"></p>
+
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('#sidebarCollapse').on('click', function () {
+                $('#sidebar').toggleClass('active');
+            });
+
+        });
+    </script>
+
+    <script type="text/javascript">
+        var m;
+        var counter = 0;
+        var wto;
+        var num_clusters = 3;
+
+        $(function () {
+            $("#force-live-checkbox").hide();
+
+            $('input[type=radio][name=cluster-radio]').change(function () {
+                liveforceLayout(forceLiveData['force']['results'], forceLiveData['force']['author'],
+                    forceLiveData['force']['clustering' + this.value]);
+                makeClusters(forceLiveData);
+                num_clusters = this.value
+            });
+
+            showHideViews('')
+
+        });
+
+        function csrfSafeMethod(method) {
+            return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+        }
+
+        // Force Layout click
+        $('#force-layout-button').on('click', function () {
+            startLoader('#loader-force-layout', true);
+            $.ajax({
+                beforeSend: function (xhr, settings) {
+                    if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                        xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                    }
+                },
+                type: 'post',
+                url: '/author/make_clusters/',
+                data: {
+                    type: "Force Layout",
+                    counter: counter,
+                    csrftoken: csrftoken
+                },
+                success: function (data) {
+                    console.log(data);
+                    forceLayoutData = {};
+                    forceLayoutData['results'] = data['results'];
+                    forceLayoutData['author'] = data['author'];
+                    startLoader('#loader-force-layout', false);
+                    forceLayout(data['results'], data['author'])
+
+                }
+            });
+        });
+
+        var saveData
+        $('#bar-button').on('click', function () {
+            startLoader('#loader-barchart', true);
+            $.ajax({
+                beforeSend: function (xhr, settings) {
+                    if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                        xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                    }
+                },
+                type: 'post',
+                url: '/author/make_bar/',
+                data: {
+                    type: "Bar",
+                    counter: counter,
+                    ngrams: $('input[name=ngramsradio]:checked').val(),
+                    csrftoken: csrftoken
+                },
+                success: function (data) {
+                    saveData = data;
+                    console.log(data);
+                    startLoader('#loader-barchart', false);
+                    ngram3 = data['results'];
+                    ngram4 = data['results4'];
+                    barChart(data['results'], data['author'], false, false)
+                }
+            });
+        });
+
+        $('#concept-map-button').on('click', function () {
+            makeConceptMap()
+        });
+
+        $('textarea#message').bind('input propertychange', function () {
+            console.log($('textarea#message').val());
+            clearTimeout(wto);
+            wto = setTimeout(function () {
+
+                console.log(csrftoken);
+                text = $('textarea#message').val();
+
+                startLoader('#loader', true);
+                $.ajax({
+                    beforeSend: function (xhr, settings) {
+                        if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                            xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                        }
+                    },
+                    type: 'post',
+                    url: '/author/fetchdata/',
+                    data: {
+                        text: text,
+                        counter: counter,
+                        csrftoken: csrftoken
+                    },
+                    success: function (data) {
+                        console.log(data);
+                        m = data;
+                        startLoader('#loader', false);
+                        counter = data['counter'];
+                        if (counter === 1) {
+                            update(data['score'])
+                        } else {
+                            update(data['score'])
+                        }
+                        $("#force-live-checkbox").show();
+                        forceLiveData = data;
+                        liveforceLayout(data['force']['results'], data['force']['author'], data['force']['clustering' + num_clusters])
+                        makeClusters(forceLiveData);
+                        makeConceptMapLive(forceLiveData)
+                        showHideViews('div-barchart')
+                    }
+                });
+            }, 1000);
+        });
+
+
+        function startLoader(id, isStart) {
+            if (!isStart) {
+                $(id).html("");
+            } else {
+                $(id).html("<img id='loader-img' alt='' src='https://m.popkey.co/163fce/Llgbv_s-200x150.gif' " +
+                    "width='100' height='100' align='center'/>");
+            }
+        }
+
+        function showHideViews(id) {
+            var bar = document.getElementById("div-barchart");
+            var force = document.getElementById("div-force");
+            var clusters = document.getElementById("div-clusters");
+            var concept = document.getElementById("div-concept-map");
+            $("#button-div-barchart").removeClass("active");
+            $("#button-div-force").removeClass("active");
+            $("#button-div-clusters").removeClass("active");
+            $("#button-div-concept-map").removeClass("active");
+            bar.style.display = 'none';
+            force.style.display = 'none';
+            clusters.style.display = 'none';
+            concept.style.display = 'none';
+            document.getElementById(id).style.display = 'block';
+            $("#button-" + id).addClass("active");
+        }
+    </script>
+{% endblock %}
